@@ -2,7 +2,6 @@ import React from 'react'
 import { useState } from 'react';
 import Details from './Details';
 import Cart from './Cart'
-
 const Inputs = () => {
     const [name,setName]=useState('');
     const [des,setDes]=useState('');
@@ -11,8 +10,9 @@ const Inputs = () => {
     const [m,setM]=useState('');
     const [s,setS]=useState('');
     const [details,setDetails]=useState([]);
-    console.log(details)
-  
+    const [finalDetails,setFinalDetails]=useState([])
+    const [fixed,setFixed]=useState([])
+
     const remover=()=>{
         setName('')
         setDes('')
@@ -21,50 +21,135 @@ const Inputs = () => {
         setM('')
         setS('')
     }
+    const cancelHandler=()=>{     
+        setDetails(fixed)
+        setFinalDetails([])
+    }
+    
+   
     const addCart=(e,id)=>{
         e.preventDefault();
         const val=e.target.className.includes('l')?'l':e.target.className.includes('md')?'md':'xs'    
-        const upd=details.filter(i=>i.id===id)
-        if (val==='l'){
-            const item={
-                id:id,
-                name:name,
-                des:des,
-                price:price,
-                l:+l-1,
-                m:+m,
-                s:+s
-            }
-            setDetails(prev=>[...prev,item])
-        }else if(val==='md'){
-            const item={
-                id:id,
-                name:name,
-                des:des,
-                price:price,
-                l:+l,
-                m:+m-1,
-                s:+s
-            }
-            setDetails(prev=>[...prev,item])
-
-        }else{
-            const item={
-                id:id,
-                name:name,
-                des:des,
-                price:price,
-                l:+l,
-                m:+m,
-                s:+s-1
-            }
-            setDetails(prev=>[...prev,item])
-
-        }
-       
         
+        if(val==='l'){
+        
+            const lar=details.map(i=>{
+                if(id===i.id){
+                    const updlar={
+                        id:i.id,
+                        name:i.name,
+                        des:i.des,
+                        l:+i.fl-i.l+1,
+                        price:i.price,
+                        size:'l'
+                    }
+                    return updlar
+                }
 
+            })
+            const large=lar.filter(i=>i!==undefined)  
+            const existingItemIndex = finalDetails.findIndex(item =>item.id === id && item.size===val);
+            if (existingItemIndex !== -1) {
+               
+                setFinalDetails(prev => {
+                    const updatedFinalDetails = [...prev];
+                    updatedFinalDetails[existingItemIndex] = large[0];
+                    return updatedFinalDetails;
+                });
+            } else {
+             
+                setFinalDetails(prev => [...prev, large[0]]);
+            }
+            const upd=details.map(item=>{
+                if(item.id===id){
+                    return item.l>0 ?{...item,l:+item.l-1}:{...item,l:0}
+                }
+                return item
+            })        
+            setDetails(upd)
+        }else if(val==='md'){
+           
+            const med=details.map(i=>{
+                if(id===i.id){
+                    const updmed={
+                        id:i.id,
+                        name:i.name,
+                        des:i.des,
+                        m:+i.fm-i.m+1,
+                        price:i.price,
+                        size:'md'
+                    }
+                    return updmed
+                }
+
+            })
+            const medium=med.filter(i=>i!==undefined)
+           
+            const existingItemIndex = finalDetails.findIndex(item => item.id === id && item.size===val);
+            if (existingItemIndex !== -1) {
+               
+                setFinalDetails(prev => {
+                    const updatedFinalDetails = [...prev];
+                    updatedFinalDetails[existingItemIndex] = medium[0];
+                    return updatedFinalDetails;
+                });
+            } else {
+             
+                setFinalDetails(prev => [...prev, medium[0]]);
+            }
+            
+
+         
+           
+            const upd=details.map(item=>{
+                if(item.id===id){
+                    return item.m>0 ?{...item,m:+item.m-1}:{...item,m:0}
+                }
+                return item
+            }) 
+            setDetails(upd)
+        }else{
+            const smal=details.map(i=>{
+                if(id===i.id){
+                    const updsmal={
+                        id:i.id,
+                        name:i.name,
+                        des:i.des,
+                        s:+i.fs-i.s+1,
+                        price:i.price,
+                        size:'xs'
+                    }
+                    return updsmal
+                }
+
+            })
+            const small=smal.filter(i=>i!==undefined)
+           
+            const existingItemIndex = finalDetails.findIndex(item => item.id === id && item.size===val);
+            if (existingItemIndex !== -1) {
+               
+                setFinalDetails(prev => {
+                    const updatedFinalDetails = [...prev];
+                    updatedFinalDetails[existingItemIndex] = small[0];
+                    return updatedFinalDetails;
+                });
+            } else {
+             
+                setFinalDetails(prev => [...prev, small[0]]);
+            }
+            
+            
+            const upd=details.map(item=>{
+
+                if(item.id===id){
+                    return item.s>0 ?{...item,s:+item.s-1}:{...item,s:0}
+                }
+                return item
+            })
+            setDetails(upd)
+        } 
     }
+    
     const addHandler=(e)=>{
         e.preventDefault();
         const item={
@@ -73,11 +158,28 @@ const Inputs = () => {
             des:des,
             price:price,
             l:l,
+            fl:l,
             m:m,
-            s:s
+            fm:m,
+            s:s,
+            fs:s
         }
+        const itemdetails={
+            id:fixed.length?fixed.length+1:1,
+            name:name,
+            des:des,
+            price:price,
+            l:l,
+            m:m,
+            s:s,
+            fl:l,
+            fm:m,
+            fs:s
+        }
+        setFixed(prev=>[...prev,itemdetails])
         setDetails(prev=>[...prev,item])
         remover();
+        
   }
   return (
     < >
@@ -122,7 +224,7 @@ const Inputs = () => {
             </div>
         </div>
         <Details details={details} addCart={addCart}/>
-        <Cart details={details}/>
+        <Cart finalDetails={finalDetails} setFinalDetails={setFinalDetails} cancelHandler={cancelHandler} />
         
     </>
     
